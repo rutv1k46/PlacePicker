@@ -22,24 +22,26 @@ app.get("/places", async (req, res) => {
   await new Promise((resolve) => setTimeout(resolve, 3000));
 
   // res.status(500).json()
-
+  
   const fileContent = await fs.readFile("./data/places.json");
-
+  
   const placesData = JSON.parse(fileContent);
-
+  
   res.status(200).json({ places: placesData });
 });
 
 app.get("/user-places", async (req, res) => {
   const fileContent = await fs.readFile("./data/user-places.json");
-
+  
   const places = JSON.parse(fileContent);
-
+  
   res.status(200).json({ places });
 });
 
 app.put("/user-places", async (req, res) => {
   const placeId = req.body.placeId;
+  
+  // res.status(500).json()
 
   const fileContent = await fs.readFile("./data/places.json");
   const placesData = JSON.parse(fileContent);
