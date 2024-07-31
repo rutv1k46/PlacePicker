@@ -11,7 +11,7 @@ import { ErrorService } from "../shared/error.service";
 export class PlacesService {
     private userPlaces = signal<Place[]>([]);
     private httpClient = inject(HttpClient);
-    private errorService = inject(ErrorService)
+    private errorService = inject(ErrorService);
 
     loadedUserPlaces = this.userPlaces.asReadonly();
 
@@ -43,7 +43,9 @@ export class PlacesService {
             .pipe(
                 catchError((error) => {
                     this.userPlaces.set(prevPlaces);
-                    this.errorService.showError("Failed to store selected place.")
+                    this.errorService.showError(
+                        "Failed to store selected place."
+                    );
                     return throwError(
                         () => new Error("Failed to store selected place.")
                     );
@@ -51,7 +53,23 @@ export class PlacesService {
             );
     }
 
-    removeUserPlace(place: Place) {}
+    removeUserPlace(place: Place) {
+        const prevPlaces = this.userPlaces();
+
+        if (prevPlaces.some((p) => p.id === place.id)) {
+            this.userPlaces.set(prevPlaces.filter((p) => p.id !== place.id));
+        }
+
+        return this.httpClient.delete("http://localhost:3000/user-places/" + place.id).pipe(
+            catchError((error) => {
+                this.userPlaces.set(prevPlaces);
+                this.errorService.showError("Failed to remove selected place.");
+                return throwError(
+                    () => new Error("Failed to remove selected place.")
+                );
+            })
+        );
+    }
 
     private fetchPlaces(url: string, errorMessage: string) {
         return this.httpClient.get<{ places: Place[] }>(url).pipe(
